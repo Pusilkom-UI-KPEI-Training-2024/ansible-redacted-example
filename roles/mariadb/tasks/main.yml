@@ -1,0 +1,70 @@
+- name: Install MariaDB v{{ mariadb_version }}
+  apt:
+    update_cache: yes
+    name:
+      - mariadb-client=1:10.3.23-0+deb10u1
+      - mariadb-server=1:10.3.23-0+deb10u1
+      - python-pymysql=0.9.3-1
+    state: present
+    install_recommends: no
+- name: Check for existing database # noqa 301
+  command:
+    cmd: ls "/var/lib/postgresql/Work/{{ db_name|quote }}_mariadb.pass"
+  ignore_errors: yes
+  register: check_db
+  when:
+    - db_type is defined
+    - db_type == "mysql"
+    - db_name is defined
+- name: Read '{{ db_name|quote }}' password from local filesystem
+  command:
+    cmd: "cat /var/lib/postgresql/Work/{{ db_name|quote }}_mariadb.pass"
+  register: random_password
+  when:
+    - db_type is defined
+    - db_type == "mysql"
+    - db_name is defined
+    - check_db is succeeded
+- name: Create random password for the new user
+  command:
+    cmd: pwgen 16 1
+    creates: "/var/lib/postgresql/Work/{{ db_name|quote }}_mariadb.pass"
+  register: random_password
+  when:
+    - db_type is defined
+    - db_type == "mysql"
+    - db_name is defined
+    - check_db is failed
+  notify: create {{ db_name|quote }}_mariadb.pass
+- name: Create a new database with name '{{ db_name|quote }}'
+  mysql_db:
+    name: "{{ db_name|quote }}"
+    encoding: utf8
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when:
+    - db_type is defined
+    - db_type == "mysql"
+    - db_name is defined
+- name: Create database user with name '{{ db_name|quote }}'
+  mysql_user:
+    name: "{{ db_name|quote }}"
+    # TODO Fix: random_password contains task {changed, skip_reason, skipped}
+    #      instead of the password itself when the Read Password task is skipped
+    password: "{{ random_password.stdout }}"
+    priv: "{{ db_name|quote }}.*:ALL"
+    host: "{{ item }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when:
+    - db_type is defined
+    - db_type == "mysql"
+    - db_name is defined
+  # TODO Fix: Read host items from environment-specific vars
+  with_items:
+    - "{{ ansible_hostname }}"
+    - "127.0.0.1"
+    - ::1
+    - localhost
+    - "[REDACTED]/255.255.255.0"
+    - "[REDACTED]/255.255.255.0"

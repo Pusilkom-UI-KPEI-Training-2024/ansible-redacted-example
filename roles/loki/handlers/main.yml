@@ -1,0 +1,5 @@
+- name: restart Loki
+  systemd:
+    name: loki.service
+    no_block: yes
+    state: restarted

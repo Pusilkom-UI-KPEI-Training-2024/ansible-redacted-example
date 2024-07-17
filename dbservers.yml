@@ -1,0 +1,14 @@
+- name: Provision MariaDB v{{ mariadb.version }}
+  hosts: mysql_db
+  roles:
+    - mariadb
+  environment:
+    - http_proxy: "{{ proxy }}"
+    - https_proxy: "{{ proxy }}"
+- name: Provision PostgreSQL
+  hosts: postgres_db
+  roles:
+    - postgres
+  environment:
+    - http_proxy: "{{ proxy }}"
+    - https_proxy: "{{ proxy }}"

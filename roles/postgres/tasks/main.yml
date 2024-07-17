@@ -1,0 +1,78 @@
+---
+- name: Install dependencies for PostgreSQL-related tasks
+  apt:
+    update_cache: yes
+    name:
+      - acl
+      - libpq-dev
+      - python-psycopg2
+    state: present
+    install_recommends: no
+- name: Create random database password
+  shell: # noqa 305
+    creates: "/var/lib/postgresql/Work/{{ db_name|quote }}.pass"
+    cmd: pwgen 16 1
+  register: pwgen
+  notify: create {{ db_name|quote }}.pass
+  when:
+    - db_type is defined
+    - db_type == "postgres"
+    - db_name is defined
+- name: Create database user '{{ db_name|quote }}'
+  postgresql_user:
+    name: "{{ db_name|quote }}"
+    # TODO Fix: pwgen contains task {changed, skip_reason, skipped}
+    #      instead of the password itself when the Create Random Password task is skipped
+    password: "{{ pwgen.stdout }}"
+    conn_limit: "{{ database.conn_limit | default(100) }}"
+    state: present
+    encrypted: yes
+    no_password_changes: yes
+  notify: create {{ db_name|quote }}.role
+  become: yes
+  become_user: postgres
+  when:
+    - db_type is defined
+    - db_type == "postgres"
+    - db_name is defined
+- name: Create new database '{{ db_name|quote }}'
+  postgresql_db:
+    name: "{{ db_name|quote }}"
+    encoding: UTF-8
+    owner: "{{ db_name|quote }}"
+    state: present
+  become: yes
+  become_user: postgres
+  when:
+    - db_type is defined
+    - db_type == "postgres"
+    - db_name is defined
+- name: GRANT ALL ON DATABASE "{{ db_name|quote }}" TO "{{ db_name|quote }}"
+  postgresql_privs:
+    roles: "{{ db_name|quote }}"
+    database: postgres
+    objs: "{{ db_name|quote }}"
+    privs: ALL
+    type: database
+    grant_option: yes
+  become: yes
+  become_user: postgres
+  when:
+    - db_type is defined
+    - db_type == "postgres"
+    - db_name is defined
+- name: REVOKE ALL ON DATABASE "{{ db_name|quote }}" FROM PUBLIC
+  postgresql_privs:
+    roles: PUBLIC
+    database: postgres
+    objs: "{{ db_name|quote }}"
+    privs: ALL
+    type: database
+    grant_option: no
+  become: yes
+  become_user: postgres
+  notify: create {{ db_name|quote }}.grant
+  when:
+    - db_type is defined
+    - db_type == "postgres"
+    - db_name is defined

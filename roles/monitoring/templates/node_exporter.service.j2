@@ -1,0 +1,15 @@
+[Unit]
+Description=Prometheus exporter for machine metrics
+After=network.target syslog.target
+
+[Service]
+User=nobody
+Group=nogroup
+WorkingDirectory={{ node_exporter_dir }}/latest
+ExecStart={{ node_exporter_dir }}/latest/node_exporter --web.listen-address=":{{ node_exporter_port }}"
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

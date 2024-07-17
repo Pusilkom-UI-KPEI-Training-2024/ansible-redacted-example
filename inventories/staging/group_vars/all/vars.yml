@@ -1,0 +1,27 @@
+---
+ansible_host: "{{ vault_ansible_host }}"
+
+grafana_version: '7.1.5'
+
+loki_ip: 192.168.0.110
+loki_dir: /opt/loki
+loki_port: 3100
+loki_version: '1.6.1'
+loki_checksum: 'sha256:fe26abcd4a3dfbdf3c3c6df6392a20ca885472a545bb2f5240c192f914238f9a'
+
+mariadb_version: '10.3'
+
+node_exporter_dir: /opt/node_exporter
+node_exporter_port: 9100
+node_exporter_version: '1.0.1'
+node_exporter_checksum: 'sha256:3369b76cd2b0ba678b6d618deab320e565c3d93ccb5c2a0d5db51a53857768ae'
+
+prometheus_dir: /opt/prometheus
+prometheus_port: 9090
+prometheus_version: '2.20.1'
+prometheus_checksum: 'sha256:8fb248b579b8b9a88dd9b1686f7f68db7071960a45b28619145d3a4037375dcb'
+
+promtail_dir: /opt/promtail
+promtail_port: 9080
+promtail_version: '1.6.1'
+promtail_checksum: 'sha256:685b1e2f601b4b748e8cd6b1a5209daa710f12f5fdbeee81a1424efc6a9741c7'

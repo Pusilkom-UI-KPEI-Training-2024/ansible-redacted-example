@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus
+After=network.target syslog.target
+
+[Service]
+Type=simple
+Restart=always
+User=nobody
+Group=nogroup
+ExecStart={{ prometheus_dir }}/latest/prometheus --config.file="{{ prometheus_dir }}/config/prometheus.yml" --web.listen-address="0.0.0.0:{{ prometheus_port }}" --storage.tsdb.path="{{ prometheus_dir }}/data/"
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

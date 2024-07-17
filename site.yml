@@ -1,0 +1,11 @@
+- name: Provision basic system packages and monitoring agents across all servers
+  hosts: all
+  roles:
+    - common
+    - monitoring
+    - promtail
+  environment:
+    - http_proxy: "{{ proxy }}"
+    - https_proxy: "{{ proxy }}"
+- import_playbook: dbservers.yml
+- import_playbook: monitoring.yml

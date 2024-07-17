@@ -1,0 +1,18 @@
+- name: create {{ db_name|quote }}.pass
+  shell:
+    creates: "/var/lib/postgresql/Work/{{ db_name|quote }}.pass"
+    cmd: echo "{{ db_name|quote }} {{ pwgen.stdout }}" > "/var/lib/postgresql/Work/{{ db_name|quote }}.pass"
+  become: yes
+  become_user: postgres
+- name: create {{ db_name|quote }}.role
+  shell:
+    creates: "/var/lib/postgresql/Work/{{ db_name|quote }}.role"
+    cmd: echo "CREATE USER \"{{ db_name|quote }}\" WITH PASSWORD '{{ pwgen.stdout }}';" > "/var/lib/postgresql/Work/{{ db_name|quote }}.role"
+  become: yes
+  become_user: postgres
+- name: create {{ db_name|quote }}.grant
+  template:
+    dest: "/var/lib/postgresql/Work/{{ db_name|quote }}.grant"
+    src: db.grant.j2
+    owner: postgres
+    group: postgres

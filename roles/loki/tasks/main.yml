@@ -1,0 +1,47 @@
+- name: Initialise the deploy root and gather facts
+  deploy_helper:
+    path: "{{ loki_dir }}"
+    release: "v{{ loki_version }}"
+- name: Create deploy directory
+  file:
+    path: "{{ deploy_helper.new_release_path }}"
+    state: directory
+- name: Add an unfinished file, to allow cleanup on successful finalize
+  file:
+    path: "{{ deploy_helper.new_release_path }}/{{ deploy_helper.unfinished_filename }}"
+    state: touch
+- name: Download Loki v{{ loki_version }}
+  get_url:
+    dest: "{{ deploy_helper.new_release_path }}/loki-linux-amd64.zip"
+    url: "https://github.com/grafana/loki/releases/download/v{{ loki_version }}/loki-linux-amd64.zip"
+    checksum: "{{ loki_checksum }}"
+- name: Extract Loki v{{ loki_version }}
+  unarchive:
+    src: "{{ deploy_helper.new_release_path }}/loki-linux-amd64.zip"
+    dest: "{{ deploy_helper.new_release_path }}"
+    remote_src: yes
+    creates: "{{ deploy_helper.new_release_path }}/loki-linux-amd64"
+- name: Create Loki systemd system unit
+  template:
+    dest: /usr/local/lib/systemd/system/loki.service
+    src: loki.service.j2
+    force: yes
+- name: Copy latest Loki configuration
+  template:
+    dest: "{{ deploy_helper.shared_path }}/loki.yml"
+    src: loki.yml.j2
+    force: yes
+    backup: yes
+  notify: restart Loki
+- name: Enable Loki
+  systemd:
+    name: loki.service
+    enabled: yes
+    daemon_reload: yes
+    state: started
+- name: Finalise Loki v{{ loki_version }} installation
+  deploy_helper:
+    path: "{{ loki_dir }}"
+    keep_releases: 3
+    state: finalize
+    release: "v{{ loki_version }}"

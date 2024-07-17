@@ -1,0 +1,37 @@
+# Inventory written in INI format
+
+[loadbalancers]
+haproxy             ansible_host=redacted
+
+[apps]
+redacted            ansible_host=10.119.234.163
+redacted            ansible_host=10.119.234.164
+sso                 ansible_host=10.119.234.165
+redacted            ansible_host=10.119.234.166
+redacted            ansible_host=10.119.234.167
+redacted            ansible_host=10.119.234.168
+redacted            ansible_host=10.119.234.169
+redacted            ansible_host=10.119.234.170
+redacted            ansible_host=10.119.234.171
+redacted            ansible_host=10.119.234.172
+mailgw              ansible_host=10.119.234.174
+redacted            ansible_host=10.119.234.175
+redacted-api        ansible_host=10.119.234.177
+sso-usermanagement  ansible_host=10.119.234.178
+sso-backend         ansible_host=10.119.234.179
+chat                ansible_host=10.119.234.180
+redis               ansible_host=10.119.234.182
+
+[monitors]
+monitoring          ansible_host=10.119.234.173
+
+[postgres_db]
+postgres11          ansible_host=10.119.234.183
+postgres12          ansible_host=10.119.234.162
+
+[mysql_db]
+mysql               ansible_host=10.119.234.176
+
+[databases:children]
+mysql_db
+postgres_db

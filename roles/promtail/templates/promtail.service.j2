@@ -1,0 +1,15 @@
+[Unit]
+Description=Promtail log monitoring agent
+After=network.target syslog.target
+
+[Service]
+User=root
+WorkingDirectory={{ deploy_helper.current_path }}
+ExecStartPre=/bin/sleep 30
+ExecStart={{ deploy_helper.current_path }}/promtail-linux-amd64 --config.file={{ deploy_helper.shared_path }}/promtail.yml
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

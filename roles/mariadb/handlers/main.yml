@@ -1,0 +1,8 @@
+- name: create root_mariadb.pass
+  shell:
+    cmd: echo "{{ root_password.stdout }}" > /var/lib/postgresql/Work/root_mariadb.pass
+    creates: /var/lib/postgresql/Work/root_mariadb.pass
+- name: create {{ db_name|quote }}_mariadb.pass
+  shell:
+    cmd: echo "{{ db_name|quote }} {{ random_password.stdout }}" > "/var/lib/postgresql/Work/{{ db_name|quote }}_mariadb.pass"
+    creates: "/var/lib/postgresql/Work/{{ db_name|quote }}_mariadb.pass"

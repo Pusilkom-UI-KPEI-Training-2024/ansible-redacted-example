@@ -1,0 +1,9 @@
+- name: Setup Grafana, Loki, and Prometheus stack
+  hosts: monitors
+  roles:
+    - prometheus
+    - grafana
+    - loki
+  environment:
+    - http_proxy: "{{ proxy }}"
+    - https_proxy: "{{ proxy }}"

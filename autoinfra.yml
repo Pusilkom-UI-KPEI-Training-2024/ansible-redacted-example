@@ -1,0 +1,8 @@
+- name: Provision SSH key used for automation
+  hosts: all
+  tasks:
+    - name: Add passphrase-less autoinfra SSH key for user '{{ user }}'
+      authorized_key:
+        user: "{{ user|quote }}"
+        key: "[REDACTED]"
+        state: present

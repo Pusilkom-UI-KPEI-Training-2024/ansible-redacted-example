@@ -1,0 +1,17 @@
+- name: Install basic packages
+  apt:
+    update_cache: yes
+    name:
+      - apt-transport-https
+      - curl
+      - git
+      - htop
+      - software-properties-common
+      - unzip
+      - wget
+    state: present
+    install_recommends: no
+- name: Create systemd system unit directory
+  file:
+    path: /usr/local/lib/systemd/system/
+    state: directory

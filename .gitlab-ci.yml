@@ -1,0 +1,63 @@
+stages:
+  - test
+  - deploy
+
+.provision:
+  image: alpine:3.12.0
+  stage: deploy
+  variables:
+    ANSIBLE_VAULT_PASS: "[REDACTED]"
+    ANSIBLE_HOST_KEY_CHECKING: 'False'
+    DEPLOYER_PRIVATE_KEY:
+    DEPLOYER_USER:
+  before_script:
+    - apk update && apk add ansible ansible-lint openssh-client
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - echo "${DEPLOYER_PRIVATE_KEY}" | ssh-add -
+    - printf "${ANSIBLE_VAULT_PASS}" > ~/.vault-pass && chmod 600 ~/.vault-pass
+  script:
+    - ansible-playbook
+      --become
+      --user ${DEPLOYER_USER}
+      --inventory "./inventories/${CI_ENVIRONMENT_NAME}"
+      --vault-password-file ~/.vault-pass
+      ./site.yml
+  after_script:
+    - rm ~/.vault-pass
+  when: manual
+  except:
+    refs:
+      - schedules
+
+lint:
+  image: alpine:3.12.0
+  stage: test
+  before_script:
+    - apk update && apk add ansible ansible-lint
+  script:
+    - ansible-lint *.yml
+
+provision:develop:
+  extends: .provision
+  variables:
+    ANSIBLE_VAULT_PASS: $DEVELOPMENT_ANSIBLE_VAULT_PASS
+    DEPLOYER_PRIVATE_KEY: $DEVELOPMENT_DEPLOYER_PRIVATE_KEY
+    DEPLOYER_USER: $DEVELOPMENT_DEPLOYER_USER
+  environment:
+    name: develop
+  only:
+    refs:
+      - "develop@[REDACTED]/infrastructure"
+
+provision:staging:
+  extends: .provision
+  variables:
+    ANSIBLE_VAULT_PASS: $STAGING_ANSIBLE_VAULT_PASS
+    DEPLOYER_PRIVATE_KEY: $STAGING_DEPLOYER_PRIVATE_KEY
+    DEPLOYER_USER: $STAGING_DEPLOYER_USER
+  environment:
+    name: staging
+  only:
+    refs:
+      - "staging@[REDACTED]/infrastructure"

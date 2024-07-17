@@ -1,0 +1,43 @@
+# Inventory written in INI format
+## Public IP: [REDACTED]
+
+[apps]
+redacted            ansible_port=12320 internal_ip=192.168.0.100
+redacted            ansible_port=12321 internal_ip=192.168.0.101
+redacted            ansible_port=12322 internal_ip=192.168.0.102
+redacted-api        ansible_port=12323 internal_ip=192.168.0.103
+redacted            ansible_port=12324 internal_ip=192.168.0.104
+redacted            ansible_port=12325 internal_ip=192.168.0.105
+redacted            ansible_port=12326 internal_ip=192.168.0.106
+mailgw              ansible_port=12327 internal_ip=192.168.0.107
+chat                ansible_port=12328 internal_ip=192.168.0.108
+mobile              ansible_port=12329 internal_ip=192.168.0.109
+redacted            ansible_port=12332 internal_ip=192.168.0.112
+redis               ansible_port=12336 internal_ip=192.168.0.116
+redacted            ansible_port=12339 internal_ip=192.168.0.119
+sso-1               ansible_port=12340 internal_ip=192.168.0.120
+sso-2               ansible_port=12341 internal_ip=192.168.0.121
+sso-3               ansible_port=12329 internal_ip=192.168.0.109
+sso-backend         ansible_port=12342 internal_ip=192.168.0.122
+sso-usermanagement  ansible_port=12343 internal_ip=192.168.0.123
+redacted            ansible_port=12344 internal_ip=192.168.0.124
+webmail             ansible_port=12345 internal_ip=192.168.0.125
+
+[monitors]
+monitoring          ansible_port=12330 internal_ip=192.168.0.110
+
+[mysql_db]
+mysql               ansible_port=12331 internal_ip=192.168.0.111
+
+[postgres_db]
+postgres11          ansible_port=12333 internal_ip=192.168.0.113
+postgres12-1        ansible_port=12334 internal_ip=192.168.0.114
+postgres12-1        ansible_port=12335 internal_ip=192.168.0.115
+
+[loadbalancers]
+reverseproxy1       ansible_port=12337 internal_ip=192.168.0.117
+reverseproxy2       ansible_port=12338 internal_ip=192.168.0.118
+
+[databases:children]
+mysql_db
+postgres_db

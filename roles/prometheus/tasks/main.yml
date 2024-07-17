@@ -1,0 +1,44 @@
+---
+- name: Create Prometheus installation directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: nobody
+  with_items:
+    - "{{ prometheus_dir }}"
+    - "{{ prometheus_dir }}/config"
+    - "{{ prometheus_dir }}/data"
+- name: Download Prometheus
+  get_url:
+    dest: "{{ prometheus_dir }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    checksum: "{{ prometheus_checksum }}"
+- name: Extract Prometheus
+  unarchive:
+    src: "{{ prometheus_dir }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    dest: "{{ prometheus_dir }}"
+    remote_src: yes
+    creates: "{{ prometheus_dir }}/prometheus-{{ prometheus_version }}.linux-amd64"
+- name: Create symbolic link to the latest Prometheus
+  file:
+    src: "{{ prometheus_dir }}/prometheus-{{ prometheus_version }}.linux-amd64"
+    dest: "{{ prometheus_dir }}/latest"
+    state: link
+- name: Create Prometheus systemd system unit
+  template:
+    dest: /usr/local/lib/systemd/system/prometheus.service
+    src: prometheus.service.j2
+    force: yes
+- name: Enable Prometheus
+  systemd:
+    name: prometheus.service
+    enabled: yes
+    daemon_reload: yes
+    state: started
+- name: Copy latest Prometheus configuration
+  template:
+    dest: "{{ prometheus_dir }}/config/prometheus.yml"
+    src: prometheus.yml.j2
+    force: yes
+    backup: yes
+  notify: restart prometheus

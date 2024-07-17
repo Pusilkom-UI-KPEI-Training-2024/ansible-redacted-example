@@ -1,0 +1,13 @@
+[Unit]
+Description=Loki log aggregation system
+After=network.target syslog.target
+
+[Service]
+Restart=on-failure
+User=nobody
+Group=nogroup
+WorkingDirectory={{ deploy_helper.current_path }}
+ExecStart={{ deploy_helper.current_path }}/loki-linux-amd64 --config.file={{ deploy_helper.shared_path }}/loki.yml
+
+[Install]
+WantedBy=multi-user.target
